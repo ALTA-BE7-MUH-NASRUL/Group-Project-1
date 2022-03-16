@@ -14,18 +14,23 @@ var (
 
 type User struct {
 	gorm.Model
-	Name     string `json:"name" form:"name"`
-	Email    string `gorm:"unique" json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
-	Phone    string `gorm:"unique" json:"phone" form:"phone"`
-	Address  string `json:"address" form:"address"`
-	ATM      []ATM
+	Name  string `json:"name" form:"name"`
+	Phone string `gorm:"unique" json:"phone" form:"phone"`
 }
 
-type ATM struct {
+type Transfer struct {
 	gorm.Model
-	Number string
-	UserID uint
+	User_id        []User
+	Phone_user     string `gorm:"unique" json:"phone_user" form:"phone_user"`
+	Phone_receiver string `gorm:"unique" json:"phone_receiver" form:"phone_receiver"`
+	Amount         uint   `json:"Amount" form:"Amount"`
+}
+
+type Top_up struct {
+	gorm.Model
+	User_id    []User
+	Phone_user string `gorm:"unique" json:"phone_user" form:"phone_user"`
+	Amount     uint   `json:"Amount" form:"Amount"`
 }
 
 func InitDB() {
@@ -41,7 +46,8 @@ func InitDB() {
 
 func InitialMigration() {
 	DB.AutoMigrate(&User{})
-	DB.AutoMigrate(&ATM{})
+	DB.AutoMigrate(&Transfer{})
+	DB.AutoMigrate(&Top_up{})
 }
 
 func init() {
@@ -50,5 +56,6 @@ func init() {
 }
 
 func main() {
+
 	fmt.Println("Hello World!")
 }
