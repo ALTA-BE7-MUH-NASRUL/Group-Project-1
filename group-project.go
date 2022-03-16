@@ -14,23 +14,25 @@ var (
 
 type User struct {
 	gorm.Model
-	Name  string `json:"name" form:"name"`
-	Phone string `gorm:"unique" json:"phone" form:"phone"`
+	Name     string `json:"name" form:"name"`
+	Phone    string `gorm:"unique" json:"phone" form:"phone"`
+	Transfer []Transfer
+	Top_up   []Top_up
 }
 
 type Transfer struct {
 	gorm.Model
-	User_id        []User
+	UserID         int
 	Phone_user     string `gorm:"unique" json:"phone_user" form:"phone_user"`
 	Phone_receiver string `gorm:"unique" json:"phone_receiver" form:"phone_receiver"`
-	Amount         uint   `json:"Amount" form:"Amount"`
+	Amount         uint   `json:"amount" form:"amount"`
 }
 
 type Top_up struct {
 	gorm.Model
-	User_id    []User
+	UserID     int
 	Phone_user string `gorm:"unique" json:"phone_user" form:"phone_user"`
-	Amount     uint   `json:"Amount" form:"Amount"`
+	Amount     uint   `json:"amount" form:"amount"`
 }
 
 func InitDB() {
