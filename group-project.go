@@ -90,9 +90,30 @@ func main() {
 			fmt.Println(value.ID, "-", value.Phone_user, "-", value.Name, "-", value.Balance)
 		}
 	case "3":
-		fmt.Println("Update")
+		fmt.Println("Change your name")
+		var id uint
+		var name string
+		fmt.Println("Input your id: ")
+		fmt.Scanln(&id)
+		fmt.Println("Input your new name: ")
+		fmt.Scanln(&name)
+
+		tx := DB.Model(&User{}).Where("id = ?", id).Update("Name", name)
+		if tx.Error != nil {
+
+			fmt.Println("error when update data")
+		}
+
 	case "4":
-		fmt.Println("Delete")
+		fmt.Println("Delete your account")
+		var id int
+		fmt.Println("Input your id: ")
+		fmt.Scanln(&id)
+		tx := DB.Delete(&User{}, id)
+		if tx.Error != nil {
+			fmt.Println("error when delete data")
+		}
+		fmt.Println("successfully deleted")
 	case "5":
 		top_up := Top_up{}
 		user := User{}
@@ -132,17 +153,24 @@ func main() {
 		}
 	case "7":
 		fmt.Println("history top-up")
+		var top_up []Top_up
+		tx := DB.Find(&top_up)
+		if tx.Error != nil {
+			fmt.Println("error ", tx.Error)
+		}
+		for _, value := range top_up {
+			fmt.Println(value.ID, "-", value.Amount, "-", value.UpdatedAt, "-", value.CreatedAt)
+		}
+
 	case "8":
 		fmt.Println("history transfer")
+		var transfer []Transfer
+		tx := DB.Find(&transfer)
+		if tx.Error != nil {
+			fmt.Println("error ", tx.Error)
+		}
+		for _, value := range transfer {
+			fmt.Println(value.ID, "-", value.Amount, "-", value.UpdatedAt, "-", value.CreatedAt)
+		}
 	}
 }
-
-// id := DB.Find(&user.ID).Where("Phone_user= ?", &user.Phone_user)
-// tx := DB.Save(&top_up)
-// DB.Model(&user).UpdateColumn("Balance", user.Balance+top_up.Amount)
-// if tx.Error != nil {
-// 	fmt.Println("error when insert phone number")
-// }
-// if tx.RowsAffected == 0 {
-// 	fmt.Println("insert failed")
-// }
