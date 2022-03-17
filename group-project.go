@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -37,10 +36,10 @@ type Top_up struct {
 }
 
 func InitDB() {
-	connectionString := os.Getenv("group_project")
+	connection := "root:$10Milyar@tcp(localhost:3306)/GroupProject?charset=utf8&parseTime=True&loc=Local"
 
 	var err error
-	DB, err = gorm.Open(mysql.Open(connectionString), &gorm.Config{})
+	DB, err = gorm.Open(mysql.Open(connection), &gorm.Config{})
 
 	if err != nil {
 		panic(err)
@@ -59,15 +58,37 @@ func init() {
 }
 
 func main() {
-	fmt.Println("1. Create Account\n 2. Read Account\n 3. Update Account\n 4. Delete Account\n 5. Top-Up\n 6. Transfer\n 7.Read History Top-Up\n 8.Read History Transfer\n Choose menu: ")
-	var Choose string
-	fmt.Scanln(&Choose)
 
-	switch Choose {
+	fmt.Println("Masukkan pilihan anda? (1: create account)/(2: read your account)/(3: update your account)/(4: delete your account)/(5: top-up balance)/(6: transfer balance)/(7: history top-up)/(8: history transfer)")
+	var pilihan string
+	fmt.Scanln(&pilihan)
+
+	switch pilihan {
 	case "1":
-		fmt.Println("Create")
+		newUser := User{}
+		fmt.Println("Enter your name:")
+		fmt.Scanln(&newUser.Name)
+		fmt.Println("Enter your phone number:")
+		fmt.Scanln(&newUser.Phone_user)
+
+		tx := DB.Save(&newUser)
+		if tx.Error != nil {
+			fmt.Println("error when insert data")
+		}
+		if tx.RowsAffected == 0 {
+			fmt.Println("insert failed")
+		}
+		fmt.Println("Insert successfully")
+
 	case "2":
-		fmt.Println("Read")
+		var users []User
+		tx := DB.Find(&users)
+		if tx.Error != nil {
+			fmt.Println("error ", tx.Error)
+		}
+		for _, value := range users {
+			fmt.Println(value.ID, "-", value.Name)
+		}
 	case "3":
 		fmt.Println("Update")
 	case "4":
@@ -87,7 +108,6 @@ func main() {
 		if tx.RowsAffected == 0 {
 			fmt.Println("insert failed")
 		}
-
 		DB.Model(&user).Select("Balance").Where("Phone_user=?", top_up.Phone_user).Updates(User{Balance: user.Balance + top_up.Amount})
 
 	case "6":
