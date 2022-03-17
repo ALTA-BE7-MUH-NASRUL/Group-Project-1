@@ -89,19 +89,5 @@ func main() {
 		for _, value := range users {
 			fmt.Println(value.ID, "-", value.Name)
 		}
-	case "3":
-		var id int
-		var name string
-		fmt.Println("Input your id: ")
-		fmt.Scanln(&id)
-		fmt.Println("Input your new name: ")
-		fmt.Scanln(&name)
-
-		tx := DB.Model(&User{}).Where("id = ?", id).Update("Name", name)
-		if tx.Error != nil {
-
-			fmt.Println("error when update data")
-		}
-
 	}
 }
