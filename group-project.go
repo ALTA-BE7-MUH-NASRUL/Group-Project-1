@@ -57,7 +57,16 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Masukkan pilihan anda? (1: create account)/(2: read your account)/(3: update your account)/(4: delete your account)/(5: top-up balance)/(6: transfer balance)/(7: history top-up)/(8: history transfer)")
+	fmt.Println("Enter your choice?")
+	fmt.Println("1: Create account")
+	fmt.Println("2: Showing accounts")
+	fmt.Println("3: Update your username")
+	fmt.Println("4: Delete your account)")
+	fmt.Println("5: Top-up balance")
+	fmt.Println("6: Transfer balance")
+	fmt.Println("7: Showing history top-up")
+	fmt.Println("8: Showing transfer")
+
 	var pilihan string
 	fmt.Scanln(&pilihan)
 
@@ -78,7 +87,7 @@ func main() {
 		if tx.RowsAffected == 0 {
 			fmt.Println("insert failed")
 		}
-		fmt.Println("successfully created")
+		fmt.Println("successfully created, your account is now exist")
 
 	case "2":
 		var users []User
@@ -87,7 +96,11 @@ func main() {
 			fmt.Println("error ", tx.Error)
 		}
 		for _, value := range users {
-			fmt.Println(value.ID, "-", value.Phone_user, "-", value.Name, "-", value.Balance)
+			fmt.Println("ID: ", value.ID)
+			fmt.Println("Name: ", value.Name)
+			fmt.Println("Phone number: ", value.Phone_user)
+			fmt.Println("Balance", value.Balance)
+			fmt.Println(" ")
 		}
 	case "3":
 		fmt.Println("Change your name")
@@ -103,6 +116,7 @@ func main() {
 
 			fmt.Println("error when update data")
 		}
+		fmt.Println("Successfully update your name")
 
 	case "4":
 		fmt.Println("Delete your account")
@@ -115,32 +129,34 @@ func main() {
 		}
 		fmt.Println("successfully deleted")
 	case "5":
+		fmt.Println("Top up Balance")
 		top_up := Top_up{}
 		user := User{}
-		fmt.Print("Insert Your Phone Number: ")
+		fmt.Print("Insert your phone number: ")
 		fmt.Scanln(&user.Phone_user)
-		fmt.Print("Insert Amount: Rp. ")
+		fmt.Print("Insert amount: Rp. ")
 		fmt.Scanln(&top_up.Amount)
 		DB.Where("Phone_user=?", user.Phone_user).First(&user)
 		user.Balance = user.Balance + top_up.Amount
 		DB.Save(&user)
 		top_up.UserID = user.ID
 		DB.Create(&top_up)
-		fmt.Println("Transaksi Berhasil")
+		fmt.Println("Successfully top up your balance")
 	case "6":
+		fmt.Println("Transfer Balance")
 		transfer := Transfer{}
 		user := User{}
 		receiver := User{}
-		fmt.Print("Insert Your Phone Number: ")
+		fmt.Print("Insert your phone number: ")
 		fmt.Scanln(&user.Phone_user)
-		fmt.Print("Insert Destination Phone Number: ")
+		fmt.Print("Insert receiver phone number: ")
 		fmt.Scanln(&receiver.Phone_user)
-		fmt.Print("Insert Amount: Rp. ")
+		fmt.Print("Insert amount: Rp. ")
 		fmt.Scanln(&transfer.Amount)
 		DB.Where("Phone_user=?", user.Phone_user).First(&user)
 		DB.Where("Phone_user=?", receiver.Phone_user).First(&receiver)
 		if user.Balance < transfer.Amount {
-			fmt.Println("Your Balance is Not Enough")
+			fmt.Println("Your balance is not enough")
 		} else {
 			user.Balance = user.Balance - transfer.Amount
 			DB.Save(&user)
@@ -149,28 +165,37 @@ func main() {
 			transfer.UserID = user.ID
 			transfer.ReceiverID = receiver.ID
 			DB.Create(&transfer)
-			fmt.Println("Transaksi Berhasil")
+			fmt.Println("Successfully transfered")
 		}
 	case "7":
-		fmt.Println("history top-up")
+		fmt.Println("History top-up")
 		var top_up []Top_up
 		tx := DB.Find(&top_up)
 		if tx.Error != nil {
 			fmt.Println("error ", tx.Error)
 		}
 		for _, value := range top_up {
-			fmt.Println(value.ID, "-", value.Amount, "-", value.UpdatedAt, "-", value.CreatedAt)
+			fmt.Println("User ID: ", value.ID)
+			fmt.Println("Top up amount: ", value.Amount)
+			fmt.Println("Created at: ", value.CreatedAt)
+			fmt.Println("Updated at: ", value.UpdatedAt)
+			fmt.Println(" ")
 		}
 
 	case "8":
-		fmt.Println("history transfer")
+		fmt.Println("History transfer")
 		var transfer []Transfer
 		tx := DB.Find(&transfer)
 		if tx.Error != nil {
 			fmt.Println("error ", tx.Error)
 		}
 		for _, value := range transfer {
-			fmt.Println(value.ID, "-", value.Amount, "-", value.UpdatedAt, "-", value.CreatedAt)
+			fmt.Println("User ID: ", value.ID)
+			fmt.Println("Receiver ID: ", value.ReceiverID)
+			fmt.Println("Transfer amount: ", value.Amount)
+			fmt.Println("Updated at: ", value.UpdatedAt)
+			fmt.Println("Created at: ", value.CreatedAt)
+			fmt.Println(" ")
 		}
 	}
 }
