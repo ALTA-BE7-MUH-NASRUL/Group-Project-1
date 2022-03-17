@@ -25,7 +25,7 @@ type User struct {
 type Transfer struct {
 	gorm.Model
 	UserID     uint
-	PenerimaID uint
+	ReceiverID uint
 	Amount     uint `json:"amount" form:"amount"`
 }
 
@@ -126,7 +126,7 @@ func main() {
 			receiver.Balance = receiver.Balance + transfer.Amount
 			DB.Save(&receiver)
 			transfer.UserID = user.ID
-			transfer.PenerimaID = receiver.ID
+			transfer.ReceiverID = receiver.ID
 			DB.Create(&transfer)
 			fmt.Println("Transaksi Berhasil")
 		}
