@@ -17,7 +17,7 @@ type User struct {
 	Name       string     `json:"name" form:"name"`
 	Phone_user string     `gorm:"unique" json:"phone" form:"phone"`
 	Balance    uint       `json:"balance" form:"balance"`
-	Transfer   []Transfer `gorm:"foreignKey:PenerimaID;reference:ID"`
+	Transfer   []Transfer `gorm:"foreignKey:ReceiverID;reference:ID"`
 	Receiver   []Transfer `gorm:"foreignKey:UserID;reference:ID"`
 	Top_up     []Top_up   `gorm:"foreignKey:UserID;reference:ID"`
 }
