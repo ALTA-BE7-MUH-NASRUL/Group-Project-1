@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -35,7 +37,7 @@ type Top_up struct {
 }
 
 func InitDB() {
-	connection := "root:$10Milyar@tcp(localhost:3306)/group1?charset=utf8&parseTime=True&loc=Local"
+	connection := os.Getenv("group_project")
 
 	var err error
 	DB, err = gorm.Open(mysql.Open(connection), &gorm.Config{})
@@ -168,34 +170,43 @@ func main() {
 			fmt.Println("Successfully transfered")
 		}
 	case "7":
-		fmt.Println("History top-up")
-		var top_up []Top_up
-		tx := DB.Find(&top_up)
-		if tx.Error != nil {
-			fmt.Println("error ", tx.Error)
+		user := User{}
+		fmt.Print("Insert Your Phone Number: ")
+		fmt.Scanln(&user.Phone_user)
+		fmt.Println("History Top Up")
+		err := DB.Preload("Top_up").Where("phone_user = ?", user.Phone_user).First(&user).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			fmt.Println("Wrong Phone Number")
 		}
-		for _, value := range top_up {
-			fmt.Println("User ID: ", value.ID)
-			fmt.Println("Top up amount: ", value.Amount)
-			fmt.Println("Created at: ", value.CreatedAt)
-			fmt.Println("Updated at: ", value.UpdatedAt)
-			fmt.Println(" ")
+		fmt.Println("Name :", user.Name)
+		fmt.Println("Current Balance :", user.Balance)
+		if len(user.Top_up) == 0 {
+			fmt.Println("History do not found")
+		}
+		for i := len(user.Top_up) - 1; i >= 0; i-- {
+			fmt.Println("Amount :", user.Top_up[i].Amount, "\t", "Date :", user.Top_up[i].CreatedAt)
+		}
+	case "8":
+		user := User{}
+		fmt.Print("Insert Your Phone Number: ")
+		fmt.Scanln(&user.Phone_user)
+		fmt.Println("History Transfer")
+		err := DB.Preload("Receiver").Where("phone_user = ?", user.Phone_user).First(&user).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			fmt.Println("Wrong Phone Number")
+		}
+		fmt.Println("Name :", user.Name)
+		fmt.Println("Current Balance :", user.Balance)
+		if len(user.Receiver) == 0 {
+			fmt.Println("History do not found")
+		}
+		for i := len(user.Receiver) - 1; i >= 0; i-- {
+			receiver := User{}
+			DB.Find(&receiver, user.Receiver[i].ReceiverID)
+			fmt.Println("Receiver :", receiver.Name)
+			fmt.Println("Amount :", user.Receiver[i].Amount)
+			fmt.Println("Date :", user.Receiver[i].CreatedAt)
 		}
 
-	case "8":
-		fmt.Println("History transfer")
-		var transfer []Transfer
-		tx := DB.Find(&transfer)
-		if tx.Error != nil {
-			fmt.Println("error ", tx.Error)
-		}
-		for _, value := range transfer {
-			fmt.Println("User ID: ", value.ID)
-			fmt.Println("Receiver ID: ", value.ReceiverID)
-			fmt.Println("Transfer amount: ", value.Amount)
-			fmt.Println("Updated at: ", value.UpdatedAt)
-			fmt.Println("Created at: ", value.CreatedAt)
-			fmt.Println(" ")
-		}
 	}
 }
